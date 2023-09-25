@@ -1,0 +1,200 @@
+---
+title: "evolSOM vignette"
+author: "Santiago Prochetto"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# About evolSOM
+
+# About
+
+evolSOM cluster genes and/or phenotypic traits according to expression patterns. Map genes and/or phenotypic traits in different species to evaluate conservation along evolution. This vignette details some of the most important functions of the evolSOM package and the overall process to analyse features displacement. The general steps are as follow: 1- Import data and scaling 2- Build a reference species-specific SOM 3- Map features in reference SOM 4- Characterize displacement types 5- Create network dataframe to count and graph displacements 6- Plot the displacements
+
+# Installation
+
+```{r setup}
+#devtools::install_github("sanprochetto/evolSOM")
+library(evolSOM)
+library(ggplot2)
+```
+
+# Example 1
+
+Using evolSOM to discover potential gene drivers for leaf development in grasses.
+
+## 1 - Importing data and scaling
+
+For the purpose of this example, we will use a pre-load data set. Data set is a dataframe consisting of a list of genes and phenotypic traits whose expression was measured in leaf segments with four different developmental stages and three closely related species. We also need an extra dataframe with useful information about each feature (for example, if the feature is a gene or phenotypic trait, processes in which the feature is involved, gene family which the feature belongs, etc). The first step after importing the data is scaling each feature to unit variance.
+
+```{r}
+#Traits expression data (genes + phenotype)
+datSOM <- datSOM
+head(datSOM)
+
+#Traits names and information (tags) 
+classSOM <- classSOM #First column must be name of feature/gen
+```
+
+Using scale_species() to scale data from each species individually. The output is a list containing one dataframe per species. The reference species should be the first element of the list.
+
+```{r}
+datSOM.scaled <- scale_species(datSOM[,9:12], datSOM[,5:8], datSOM[,1:4], 
+                               rnames= row.names(datSOM),
+                               species_names = c("C3", "PK", "C4"))
+head(datSOM.scaled[[1]])
+
+head(datSOM.scaled[[2]])
+
+head(datSOM.scaled[[3]])
+
+```
+
+## 2 - Build a reference species-specific SOM
+
+Before building the reference SOM we need to estimate the optimum size of the grid. The optimum size is where all expression patterns in our data are represented in neurons and each pattern is unique. It will depend on the number of conditions where the data was measured. The opt_map_size() evaluate different grid sizes to capture all non redundant expression patterns.
+
+```{r}
+map_size <- opt_map_size(data = na.omit(datSOM.scaled[[1]]), #Reference species data (without NA)
+                     threshold = 0.8,          #Max correlation allowed for Neurons
+                     init_dim = 5, #this mean a grid of 5x5. The final dims should be lower. 
+                     #If dim1=dim2=init_dim, use a higher number for init_dim.
+                     max_iterations = 10)  #"rlen" parameter when training model.SOM 
+
+map_size
+```
+
+To build reference SOM we used function from kohonen and aweSOM packages.
+
+```{r}
+train.data <- as.matrix(na.omit(datSOM.scaled[[1]])) #Select variables (reference species)
+dim1<- map_size[["grid_dim1"]]
+dim2<- map_size[["grid_dim2"]]
+set.seed(100) #RNG Seed (for reproducibility)
+  init <- aweSOM::somInit(train.data, dim1, dim2) # aweSOM library
+  model.som <- kohonen::som(train.data,  # Train SOM (kohonen library)
+                          grid = kohonen::somgrid(dim1, dim2, "hexagonal"), 
+                    rlen = 1000, alpha = c(0.1, 0.001), 
+                    dist.fcts = "euclidean", init = init)
+  
+  #Use aweSOM library to visualize reference SOM
+  aweSOM::aweSOMplot(som = model.som, type = "Line", data = train.data, 
+           variables = colnames(train.data), 
+           values = "prototypes", size= 400)
+  
+```
+
+## 3 - Map features in reference SOM
+
+EXPLICAR ESTO UN POCO MEJOR...
+
+```{r}
+mappings <- create_mappings(model = model.som,
+                            train_data = train.data,
+                            data_list = datSOM.scaled, 
+                            species_names = names(datSOM.scaled), 
+                            classes = classSOM)
+
+#Explore info inside mappings:
+head(mappings[["classes"]], 15)
+head(mappings[["neurons_sizes"]],15)
+```
+
+Neurons sizes graph:
+
+```{r}
+figure <- ggplot(mappings[["neurons_sizes"]], aes(x = as.character(Neuron), y = size, fill = species)) +
+   geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+  scale_fill_manual(values = c("#7ed977", "#008f77", "#009ca6" ))+
+ theme_bw() 
+
+figure
+```
+
+## 4 - Characterize displacement types
+
+Automatic detection of displacement types can be made with create_displacements().
+
+```{r}
+displacements<-  create_displacements(model.som,
+                                      delay_threshold = 0.75,
+                                      flip_threshold = -0.85)
+
+displacements
+```
+
+If not detected, we can characterize a displacement according to other criteria editing the displacements dataframe.
+
+## 5 - Create network dataframe to count and graph displacements
+
+create_net_edges() creates a dataframe with the number of displacements between neurons and species pairwise. To compare the reference species (C3) with one of the test species (PK):
+
+```{r}
+net_edges_C3toPK <- create_net_edges(mappings =  mappings, #object returned from mapping()
+                                     "Reference.sp", "PK",  #Species names: "start", "end"
+                                     add_disp_type = TRUE,  # choose to add displacement types
+                                     disp_type = displacements) #where to find disp types info
+head(net_edges_C3toPK, 10)
+```
+
+## 6 - Plot the displacements
+
+Using displacements_graph() we can observe the amount of features displacements between species.
+
+```{r}
+ displacements_graph(mappings = mappings,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
+                 links =  net_edges_C3toPK, #the arrows in the graph
+                 reference_species = "C3", #used for determine the size of the neurons
+                 layout="circle",  #from igraph: circle, linear, grid, etc.
+                 node_order=c(1,4,5,2,6,3),  #use a specific order for visualization purposes
+                #node_order = NULL,
+                 color_edges = "disp_type",  #Color the arrows by...
+                color_scale=c("red","blue","green", "yellow", "orange", "violet")
+                 )
+```
+
+We also can select a subset of features and graph the displacements. For example, from Prochetto et al., 2023 we took a list of 25 genes involved in the process "photorespiration". We can test if there is a specific pattern of dsiplacement for this group of genes.
+
+```{r}
+###Photorespiration (25)
+phr.genes <- c("OG0000295", "OG0000378", "OG0000783", "OG0000964", "OG0001962",
+                         "OG0002384","OG0003519", "OG0003992", "OG0004041", "OG0004061",
+                         "OG0004294", "OG0004978","OG0005385", "OG0005556", "OG0006771",
+                         "OG0007574", "OG0007822", "OG0008057", "OG0010248", "OG0012065",
+                         "OG0012541", "OG0000516", "OG0011137", "OG0001049", "OG0005515")
+
+# Select genes in mappings[["classes"]]
+selected_features <- mappings[["classes"]][mappings[["classes"]]$Feature %in% phr.genes,]
+
+mappings_selected_features <- mappings
+mappings_selected_features$classes <- selected_features
+
+#Build net_edges for the list using create_net_edges function
+net_edges_pk_phr <- create_net_edges(mappings_selected_features, 
+                                     "C3", "PK",
+                                     add_disp_type = TRUE,
+                                     disp_type = displacements)
+head(net_edges_pk_phr, 10)
+
+displacements_graph(mappings = mappings_selected_features,
+                links = net_edges_pk_phr,
+                reference_species = "C3",
+                layout="grid", 
+               #node_order=c(1,4,5,2,6,3), 
+                node_order = NULL,
+                color_edges = "disp_type"
+               #color_scale=c("red")
+                 )
+
+```

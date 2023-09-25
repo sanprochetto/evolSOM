@@ -1,0 +1,34 @@
+Package: evolSOM
+Type: Package
+Title: Evaluate character conservation using SOMs
+Version: 1.0
+Author: Prochetto, S., Reinheimer,R., Stegmayer, G.
+Authors@R: c(
+  person("Santiago", "Prochetto", email = "sprochetto@gmail.com", role = c("aut","cre")),
+  person("Georgina", "Stegmayer", role = c("aut")),
+  person("Renata", "Reinheimer", role = c("ctb")) )
+Maintainer: Prochetto, S. <sprochetto@gmail.com>
+URL: https://github.com/sanprochetto/evolSOM
+Description: Cluster genes and/or phenotypic traits according to expression patterns. Map genes and/or phenotypic traits in different species to evaluate conservation along evolution.
+License: GPL (>= 3) + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Imports: 
+    aweSOM,
+    dplyr,
+    ggplot2,
+    ggraph,
+    igraph,
+    kohonen,
+    rlang,
+    stats,
+    tidyr
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)
+VignetteBuilder: knitr
