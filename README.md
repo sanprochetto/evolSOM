@@ -2,7 +2,7 @@
 
 ## About 
 
-evolSOM cluster genes and/or phenotypic traits according to expression patterns.
+evolSOM can cluster genes and/or phenotypic traits according to expression patterns.
 Map genes and/or phenotypic traits in different species to evaluate conservation
 along evolution. 
 The general steps are as follow: 
