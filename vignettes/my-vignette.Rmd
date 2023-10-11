@@ -1,7 +1,7 @@
 ---
 title: "evolSOM vignette"
 author: "Santiago Prochetto"
-date: "`r Sys.Date()`"
+date: Last modified "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{my-vignette}
@@ -20,7 +20,19 @@ knitr::opts_chunk$set(
 
 # About
 
-evolSOM cluster genes and/or phenotypic traits according to expression patterns. Map genes and/or phenotypic traits in different species to evaluate conservation along evolution. This vignette details some of the most important functions of the evolSOM package and the overall process to analyse features displacement. The general steps are as follow: 1- Import data and scaling 2- Build a reference species-specific SOM 3- Map features in reference SOM 4- Characterize displacement types 5- Create network dataframe to count and graph displacements 6- Plot the displacements
+In recent years, we have witnessed a surge in technological advancements in the field of life sciences. Researchers now have access to extensive biobanks and can collect vast amounts of multimodal data, including data from omics studies across multiple organisms, which is crucial for understanding evolution. As technical developments continue to progress, the demand for information systems capable of managing heterogeneous data is on the rise. One of the key challenges of this new era is the development of robust tools capable of integrating diverse data types to uncover hidden patterns and relationships among heterogeneous sources. We here introduce evolSOM, a novel tool based on unsupervised machine learning that facilitates the discovery of variations between multimodal data and offers an intuitive way to visualize hidden patterns within complex data matrices. Specifically, evolSOM clusters genes and/or phenotypic traits based on their expression patterns and maps these features across different species to assess their conservation throughout evolution. This vignette provides a detailed overview of the most essential functions within the evolSOM package and outlines the overall process for analyzing feature displacement. Feature displacement is a crucial aspect, as it allows us to uncover intrinsic evolutionary processes and changes. The general steps for using evolSOM are as follows:
+
+1.  Import data and perform scaling.
+
+2.  Construct a reference SOM (Self-Organizing Map).
+
+3.  Map features within the reference SOM.
+
+4.  Characterize displacement types.
+
+5.  Create a network dataframe to quantify and visualize displacements.
+
+6.  Generate displacement plots to gain insights into the data.
 
 # Installation
 
@@ -30,13 +42,15 @@ library(evolSOM)
 library(ggplot2)
 ```
 
-# Example 1
+# Example: Using evolSOM to Discover Potential Gene Drivers for Leaf Development in Grasses
 
-Using evolSOM to discover potential gene drivers for leaf development in grasses.
+In this example, we will demonstrate how to use evolSOM to identify potential gene drivers for leaf development in grasses. We'll go through the following steps:
 
-## 1 - Importing data and scaling
+## Step 1: Importing Data and Scaling
 
-For the purpose of this example, we will use a pre-load data set. Data set is a dataframe consisting of a list of genes and phenotypic traits whose expression was measured in leaf segments with four different developmental stages and three closely related species. We also need an extra dataframe with useful information about each feature (for example, if the feature is a gene or phenotypic trait, processes in which the feature is involved, gene family which the feature belongs, etc). The first step after importing the data is scaling each feature to unit variance.
+### 1.1 Data Import
+
+First, we need to import our dataset. The dataset consists of a dataframe containing a list of genes and phenotypic traits. These genes and traits have been measured in leaf segments at four different developmental stages and across three closely related species. Additionally, we require an extra dataframe that provides useful information about each feature. This information can include details such as the feature type (gene or phenotypic trait), the biological processes in which the feature is involved, the gene family to which the feature belongs, and more.
 
 ```{r}
 #Traits expression data (genes + phenotype)
@@ -47,7 +61,11 @@ head(datSOM)
 classSOM <- classSOM #First column must be name of feature/gen
 ```
 
-Using scale_species() to scale data from each species individually. The output is a list containing one dataframe per species. The reference species should be the first element of the list.
+### 1.2 Feature Scaling
+
+After importing the data, the next crucial step is to scale each feature to unit variance. This ensures that all features have the same level of influence during the analysis, preventing any feature from dominating the results due to differences in scale. Feature scaling is essential for accurate and meaningful insights from evolSOM.
+
+We can achieve feature scaling using the scale_species() function, which scales the data from each species individually. The output is a list containing one dataframe for each species. The reference species should be the first element in the list:
 
 ```{r}
 datSOM.scaled <- scale_species(datSOM[,9:12], datSOM[,5:8], datSOM[,1:4], 
@@ -61,43 +79,49 @@ head(datSOM.scaled[[3]])
 
 ```
 
-## 2 - Build a reference species-specific SOM
+## Step 2 - Build a reference SOM
 
-Before building the reference SOM we need to estimate the optimum size of the grid. The optimum size is where all expression patterns in our data are represented in neurons and each pattern is unique. It will depend on the number of conditions where the data was measured. The opt_map_size() evaluate different grid sizes to capture all non redundant expression patterns.
+### 2.1 Optimal size of the grid
+
+Before constructing the reference SOM, it's essential to estimate the optimal size of the grid. The optimal size is where all expression patterns in your data are accurately represented by neurons, ensuring that each pattern is unique. The grid size depends on the number of conditions under which the data was measured. Estimating the grid size manually can be challenging, time-consuming, and may require several iterations, especially for those who are not familiar with Self-Organizing Maps (SOM). To streamline this process, we provide a script that automates the search for the optimum grid size using the opt_map_size() function. The result, map_size, will provide you with the optimal grid dimensions.
 
 ```{r}
-map_size <- opt_map_size(data = na.omit(datSOM.scaled[[1]]), #Reference species data (without NA)
-                     threshold = 0.8,          #Max correlation allowed for Neurons
-                     init_dim = 5, #this mean a grid of 5x5. The final dims should be lower. 
-                     #If dim1=dim2=init_dim, use a higher number for init_dim.
-                     max_iterations = 10)  #"rlen" parameter when training model.SOM 
+map_size <- opt_map_size(data = na.omit(datSOM.scaled[[1]]), # Reference species data (without NA)
+                     threshold = 0.8,          # Maximum allowed correlation for neurons
+                     init_dim = 5,  # Initial grid size (e.g., 5x5)
+                     max_iterations = 10)   # Maximum iterations when training the SOM model 
 
 map_size
 ```
 
-To build reference SOM we used function from kohonen and aweSOM packages.
+### 2.2 Optimal size of the grid
+
+To build the reference SOM, we use functions from the kohonen and aweSOM packages:
 
 ```{r}
-train.data <- as.matrix(na.omit(datSOM.scaled[[1]])) #Select variables (reference species)
+train.data <- as.matrix(na.omit(datSOM.scaled[[1]])) # Select variables for the reference species
 dim1<- map_size[["grid_dim1"]]
 dim2<- map_size[["grid_dim2"]]
-set.seed(100) #RNG Seed (for reproducibility)
-  init <- aweSOM::somInit(train.data, dim1, dim2) # aweSOM library
-  model.som <- kohonen::som(train.data,  # Train SOM (kohonen library)
+set.seed(100) # Set the random number generator seed for reproducibility
+# Initialize the SOM using the aweSOM package
+  init <- aweSOM::somInit(train.data, dim1, dim2)
+  # Train the SOM using the kohonen package
+  model.som <- kohonen::som(train.data,
                           grid = kohonen::somgrid(dim1, dim2, "hexagonal"), 
                     rlen = 1000, alpha = c(0.1, 0.001), 
                     dist.fcts = "euclidean", init = init)
   
-  #Use aweSOM library to visualize reference SOM
+  # Visualize the reference SOM using the aweSOM package
   aweSOM::aweSOMplot(som = model.som, type = "Line", data = train.data, 
            variables = colnames(train.data), 
            values = "prototypes", size= 400)
-  
 ```
 
-## 3 - Map features in reference SOM
+## Step 3 - Map features within the reference SOM.
 
-EXPLICAR ESTO UN POCO MEJOR...
+### 3.1 Create mappings
+
+Let's briefly explain how to map features within the reference SOM. In this step, we utilize the create_mappings() function to create mappings and class assignments based on a trained model and input data. The mappings object stores valuable information about the mappings, such as class assignments and number of features allocated to each neuron.
 
 ```{r}
 mappings <- create_mappings(model = model.som,
@@ -111,9 +135,11 @@ head(mappings[["classes"]], 15)
 head(mappings[["neurons_sizes"]],15)
 ```
 
-Neurons sizes graph:
+### 3.2 Neurons sizes graph
 
-```{r}
+Now, let's take a look at the neuron sizes graph to gain insights into the number of features residing within each neuron:
+
+```{r,fig.align = 'center', out.width="50%"}
 figure <- ggplot(mappings[["neurons_sizes"]], aes(x = as.character(Neuron), y = size, fill = species)) +
    geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
   scale_fill_manual(values = c("#7ed977", "#008f77", "#009ca6" ))+
@@ -122,9 +148,11 @@ figure <- ggplot(mappings[["neurons_sizes"]], aes(x = as.character(Neuron), y = 
 figure
 ```
 
-## 4 - Characterize displacement types
+## Step 4 - Characterizing displacement types
 
-Automatic detection of displacement types can be made with create_displacements().
+To uncover hidden evolutionary patterns, the package identifies movements, or displacements, of features among neurons within the Self-Organizing Map (SOM). When a feature from a test species is mapped to the same neuron as in the reference species, it is considered evolutionary preserved. If it is mapped to a different neuron, it is considered displaced. These feature movements can also be categorized into various types, such as early, delayed, flip, and more.
+
+You can automatically detect displacement types using the create_displacements() function:
 
 ```{r}
 displacements<-  create_displacements(model.som,
@@ -134,11 +162,11 @@ displacements<-  create_displacements(model.som,
 displacements
 ```
 
-If not detected, we can characterize a displacement according to other criteria editing the displacements dataframe.
+The displacements object will provide information about the detected displacement types. If you need to further characterize a displacement based on additional criteria, you can manually edit the displacements dataframe as needed. This step allows for a more detailed exploration of displacement patterns in your data.
 
-## 5 - Create network dataframe to count and graph displacements
+## 5 - Creating a Network Dataframe to Count and Visualize Displacements
 
-create_net_edges() creates a dataframe with the number of displacements between neurons and species pairwise. To compare the reference species (C3) with one of the test species (PK):
+To gain insights into the nature of evolutionary displacements, we employ the create_net_edges() function to generate a displacement graph. This function constructs a dataframe that counts the number of displacements between neurons and species pairs
 
 ```{r}
 net_edges_C3toPK <- create_net_edges(mappings =  mappings, #object returned from mapping()
@@ -148,11 +176,15 @@ net_edges_C3toPK <- create_net_edges(mappings =  mappings, #object returned from
 head(net_edges_C3toPK, 10)
 ```
 
+The net_edges_C3toPK dataframe provides valuable information about the number and types of displacements between neurons and species. You can use this data to create visualizations and gain insights into the evolutionary changes and relationships between the reference species (C3) and the test species (PK)
+
 ## 6 - Plot the displacements
 
-Using displacements_graph() we can observe the amount of features displacements between species.
+### 6.1 General displacements
 
-```{r}
+You can use the displacements_graph() function to observe the extent of feature displacements between species. With this visualization, you can gain insights into the extent and quality of feature displacements between species.
+
+```{r,fig.align = 'center', out.width="100%"}
  displacements_graph(mappings = mappings,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
                  links =  net_edges_C3toPK, #the arrows in the graph
                  reference_species = "C3", #used for determine the size of the neurons
@@ -164,23 +196,26 @@ Using displacements_graph() we can observe the amount of features displacements 
                  )
 ```
 
-We also can select a subset of features and graph the displacements. For example, from Prochetto et al., 2023 we took a list of 25 genes involved in the process "photorespiration". We can test if there is a specific pattern of dsiplacement for this group of genes.
+### 6.2 Displacements of a specific group of features
 
-```{r}
-###Photorespiration (25)
+You can also select a subset of features and visualize their displacements. For instance, based on the work of Prochetto et al., 2023, we have compiled a list of 25 genes related to the "photorespiration" process. This allows us to investigate whether there's a distinct pattern of displacement for this particular group of genes.
+
+```{r, fig.align = 'center', out.width="100%"}
+# Photorespiration (25) gene list
 phr.genes <- c("OG0000295", "OG0000378", "OG0000783", "OG0000964", "OG0001962",
-                         "OG0002384","OG0003519", "OG0003992", "OG0004041", "OG0004061",
-                         "OG0004294", "OG0004978","OG0005385", "OG0005556", "OG0006771",
-                         "OG0007574", "OG0007822", "OG0008057", "OG0010248", "OG0012065",
-                         "OG0012541", "OG0000516", "OG0011137", "OG0001049", "OG0005515")
+               "OG0002384", "OG0003519", "OG0003992", "OG0004041", "OG0004061",
+               "OG0004294", "OG0004978", "OG0005385", "OG0005556", "OG0006771",
+               "OG0007574", "OG0007822", "OG0008057", "OG0010248", "OG0012065",
+               "OG0012541", "OG0000516", "OG0011137", "OG0001049", "OG0005515")
 
-# Select genes in mappings[["classes"]]
+# Select genes from mappings[["classes"]]
 selected_features <- mappings[["classes"]][mappings[["classes"]]$Feature %in% phr.genes,]
-
 mappings_selected_features <- mappings
 mappings_selected_features$classes <- selected_features
 
-#Build net_edges for the list using create_net_edges function
+
+
+# Build net_edges for the list using the create_net_edges function
 net_edges_pk_phr <- create_net_edges(mappings_selected_features, 
                                      "C3", "PK",
                                      add_disp_type = TRUE,
@@ -191,10 +226,15 @@ displacements_graph(mappings = mappings_selected_features,
                 links = net_edges_pk_phr,
                 reference_species = "C3",
                 layout="grid", 
-               #node_order=c(1,4,5,2,6,3), 
                 node_order = NULL,
                 color_edges = "disp_type"
-               #color_scale=c("red")
-                 )
-
+                                )
 ```
+
+With this analysis, you can explore the displacement patterns for this specific group of genes associated with "photorespiration." This can provide valuable insights into how these genes have evolved and their relationships between the reference species (C3) and the test species (PK).
+
+## Citation
+
+For more information, please refer to our paper:
+
+"insert reference here"
