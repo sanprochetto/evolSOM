@@ -94,7 +94,7 @@ map_size <- opt_map_size(data = na.omit(datSOM.scaled[[1]]), # Reference species
 map_size
 ```
 
-### 2.2 Optimal size of the grid
+### 2.2 Build reference SOM
 
 To build the reference SOM, we use functions from the kohonen and aweSOM packages:
 
