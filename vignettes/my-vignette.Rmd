@@ -36,7 +36,7 @@ In recent years, we have witnessed a surge in technological advancements in the 
 
 # Installation
 
-```{r setup}
+```{r setup, warning=FALSE}
 #devtools::install_github("sanprochetto/evolSOM")
 library(evolSOM)
 library(ggplot2)
@@ -50,7 +50,7 @@ In this example, we will demonstrate how to use evolSOM to identify potential ge
 
 ### 1.1 Data Import
 
-First, we need to import our dataset. The dataset consists of a dataframe containing a list of genes and phenotypic traits. These genes and traits have been measured in leaf segments at four different developmental stages and across three closely related species. Additionally, we require an extra dataframe that provides useful information about each feature. This information can include details such as the feature type (gene or phenotypic trait), the biological processes in which the feature is involved, the gene family to which the feature belongs, and more.
+First, we need to import our dataset. The dataset consists of a dataframe containing a list of genes and phenotypic traits. These genes and traits have been measured in leaf segments at four different developmental stages and across three closely related species. Additionally, we require an extra dataframe providing useful information about each feature. This information might include details such as the feature type (gene or phenotypic trait), the biological processes in which the feature is involved, the gene family to which the feature belongs, and more.
 
 ```{r}
 #Traits expression data (genes + phenotype)
