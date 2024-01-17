@@ -14,7 +14,7 @@
 #' @import ggraph
 #' @export
 
-displacements_graph <- function(mappings,
+plot_displacements <- function(mappings,
                                 links,
                                 reference_species,
                                 layout="circle",

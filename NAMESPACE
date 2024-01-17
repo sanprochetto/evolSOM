@@ -2,9 +2,9 @@
 
 export(create_mappings)
 export(detect_displacements)
-export(displacements_graph)
 export(net_edges)
 export(opt_map_size)
+export(plot_displacements)
 export(scale_species)
 import(dplyr)
 import(ggraph)

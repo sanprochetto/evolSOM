@@ -182,10 +182,10 @@ The net_edges_C3toPK dataframe provides valuable information about the number an
 
 ### 6.1 General displacements
 
-You can use the displacements_graph() function to observe the extent of feature displacements between species. With this visualization, you can gain insights into the extent and quality of feature displacements between species.
+You can use the plot_displacements() function to observe the extent of feature displacements between species. With this visualization, you can gain insights into the extent and quality of feature displacements between species.
 
 ```{r,fig.align = 'center', out.width="100%"}
- displacements_graph(mappings = mappings,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
+ plot_displacements(mappings = mappings,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
                  links =  net_edges_C3toPK, #the arrows in the graph
                  reference_species = "C3", #used for determine the size of the neurons
                  layout="circle",  #from igraph: circle, linear, grid, etc.
@@ -222,7 +222,7 @@ net_edges_pk_phr <- net_edges(mappings_selected_features,
                                      disp_type = displacements)
 head(net_edges_pk_phr, 10)
 
-displacements_graph(mappings = mappings_selected_features,
+plot_displacements(mappings = mappings_selected_features,
                 links = net_edges_pk_phr,
                 reference_species = "C3",
                 layout="grid", 
