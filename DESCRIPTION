@@ -1,7 +1,7 @@
 Package: evolSOM
 Type: Package
 Title: Evaluate character conservation using SOMs
-Version: 1.0
+Version: 1.0.1
 Author: Prochetto, S., Reinheimer,R., Stegmayer, G.
 Authors@R: c(
   person("Santiago", "Prochetto", email = "sprochetto@gmail.com", role = c("aut","cre")),
