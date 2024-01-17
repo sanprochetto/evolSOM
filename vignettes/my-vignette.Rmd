@@ -166,10 +166,10 @@ The displacements object will provide information about the detected displacemen
 
 ## 5 - Creating a Network Dataframe to Count and Visualize Displacements
 
-To gain insights into the nature of evolutionary displacements, we employ the create_net_edges() function to generate a displacement graph. This function constructs a dataframe that counts the number of displacements between neurons and species pairs
+To gain insights into the nature of evolutionary displacements, we employ the net_edges() function to generate a displacement graph. This function constructs a dataframe that counts the number of displacements between neurons and species pairs
 
 ```{r}
-net_edges_C3toPK <- create_net_edges(mappings =  mappings, #object returned from mapping()
+net_edges_C3toPK <- net_edges(mappings =  mappings, #object returned from mapping()
                                      "Reference.sp", "PK",  #Species names: "start", "end"
                                      add_disp_type = TRUE,  # choose to add displacement types
                                      disp_type = displacements) #where to find disp types info
@@ -215,8 +215,8 @@ mappings_selected_features$classes <- selected_features
 
 
 
-# Build net_edges for the list using the create_net_edges function
-net_edges_pk_phr <- create_net_edges(mappings_selected_features, 
+# Build net_edges for the list using the net_edges function
+net_edges_pk_phr <- net_edges(mappings_selected_features, 
                                      "C3", "PK",
                                      add_disp_type = TRUE,
                                      disp_type = displacements)

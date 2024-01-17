@@ -10,7 +10,7 @@
 #' @return A data frame containing the network links and edges. Object used for displacements visualization.
 #' @import dplyr
 #' @export
-create_net_edges <- function(mappings,
+net_edges <- function(mappings,
                              reference_name,
                              test_name,
                              add_disp_type = FALSE,
