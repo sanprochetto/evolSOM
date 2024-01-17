@@ -155,7 +155,7 @@ To uncover hidden evolutionary patterns, the package identifies movements, or di
 You can automatically detect displacement types using the create_displacements() function:
 
 ```{r}
-displacements<-  create_displacements(model.som,
+displacements<-  detect_displacements(model.som,
                                       delay_threshold = 0.75,
                                       flip_threshold = -0.85)
 

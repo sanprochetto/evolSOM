@@ -9,7 +9,7 @@
 #' @import dplyr
 #' @export
 
-create_displacements <- function(model,
+detect_displacements <- function(model,
                                  flip_threshold = -0.85,
                                  delay_threshold = 0.85) {
 
