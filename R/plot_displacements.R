@@ -40,17 +40,17 @@ plot_displacements <- function(mappings,
                   strength = 0.5, lineend = "round",
                   arrow = ggplot2::arrow(angle = 20, length = ggplot2::unit(0.35, "inches"),
                                 ends = "last", type = "closed")) +
-    ggraph::scale_edge_width_continuous(range = c(0.5, 8)) +
+    ggraph::scale_edge_width_continuous(range = c(0.5, 8), guide = "none") +
     # Add nodes
     ggraph::geom_node_point(ggplot2::aes(size = nodes$size), color = 'black', fill = '#F5F3EE', shape = 21) +
-    ggplot2::scale_size_continuous(range = c(8.3, 26)) +
+    ggplot2::scale_size_continuous(range = c(8.3, 26), name = "Neuron Population") +
     # Add node labels
     ggraph::geom_node_text(ggplot2::aes(label = nodes$Neuron), color = "black", repel = F, size = 7) +
     ggplot2::theme_void()
 
   # Add color scale if specified
   if (!is.null(color_scale)) {
-    figure <- figure + ggraph::scale_edge_color_manual(values = color_scale)
+    figure <- figure + ggraph::scale_edge_color_manual(values = color_scale, name = "Displacement Type")
   }
 
   return(figure)
