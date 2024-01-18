@@ -2,7 +2,9 @@
 title: "evolSOM vignette"
 author: "Santiago Prochetto"
 date: Last modified "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: TRUE
 vignette: >
   %\VignetteIndexEntry{my-vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -139,7 +141,7 @@ head(mappings[["neurons_sizes"]],15)
 
 Now, let's take a look at the neuron sizes graph to gain insights into the number of features residing within each neuron:
 
-```{r,fig.align = 'center', out.width="50%"}
+```{r,fig.align = 'center', fig.width=5, fig.height=5, fig.retina= 3}
 
 figure <- ggplot(mappings[["neurons_sizes"]], aes(x = Neuron, y = size, fill = species)) +
    geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
@@ -186,7 +188,7 @@ The net_edges_C3toPK dataframe provides valuable information about the number an
 
 You can use the plot_displacements() function to observe the extent of feature displacements between species. With this visualization, you can gain insights into the extent and quality of feature displacements between species.
 
-```{r,fig.align = 'center', out.width="100%"}
+```{r,fig.align = 'center', fig.width=8, fig.height=5, fig.retina= 3}
  figure <- plot_displacements(mappings = mappings,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
                  links =  net_edges_C3toPK, #the arrows in the graph
                  reference_species = "C3", #used for determine the size of the neurons
@@ -203,7 +205,7 @@ figure
 
 You can also select a subset of features and visualize their displacements. For instance, based on the work of Prochetto et al., 2023, we have compiled a list of 25 genes related to the "photorespiration" process. This allows us to investigate whether there's a distinct pattern of displacement for this particular group of genes.
 
-```{r, fig.align = 'center', out.width="100%"}
+```{r, fig.align = 'center',  fig.width=8, fig.height=5, fig.retina= 3}
 # Photorespiration (25) gene list
 photo.genes <- c("OG0000295", "OG0000378", "OG0000783", "OG0000964", "OG0001962",
                "OG0002384", "OG0003519", "OG0003992", "OG0004041", "OG0004061",
