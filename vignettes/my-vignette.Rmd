@@ -140,8 +140,10 @@ head(mappings[["neurons_sizes"]],15)
 Now, let's take a look at the neuron sizes graph to gain insights into the number of features residing within each neuron:
 
 ```{r,fig.align = 'center', out.width="50%"}
-figure <- ggplot(mappings[["neurons_sizes"]], aes(x = as.character(Neuron), y = size, fill = species)) +
+
+figure <- ggplot(mappings[["neurons_sizes"]], aes(x = Neuron, y = size, fill = species)) +
    geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+    scale_x_continuous(breaks = seq(1, 6, 1)) +
   scale_fill_manual(values = c("#7ed977", "#008f77", "#009ca6" ))+
  theme_bw() 
 
@@ -185,15 +187,16 @@ The net_edges_C3toPK dataframe provides valuable information about the number an
 You can use the plot_displacements() function to observe the extent of feature displacements between species. With this visualization, you can gain insights into the extent and quality of feature displacements between species.
 
 ```{r,fig.align = 'center', out.width="100%"}
- plot_displacements(mappings = mappings,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
+ figure <- plot_displacements(mappings = mappings,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
                  links =  net_edges_C3toPK, #the arrows in the graph
                  reference_species = "C3", #used for determine the size of the neurons
                  layout="circle",  #from igraph: circle, linear, grid, etc.
                  node_order=c(1,4,5,2,6,3),  #use a specific order for visualization purposes
-                #node_order = NULL,
                  color_edges = "disp_type",  #Color the arrows by...
-                color_scale=c("red","blue","green", "yellow", "orange", "violet")
-                 )
+                 color_scale=c("#ef466e","#1189b1ff","#ffd166ff", "#a1a5afff", "black"))
+                 
+figure
+                 
 ```
 
 ### 6.2 Displacements of a specific group of features
@@ -202,33 +205,33 @@ You can also select a subset of features and visualize their displacements. For 
 
 ```{r, fig.align = 'center', out.width="100%"}
 # Photorespiration (25) gene list
-phr.genes <- c("OG0000295", "OG0000378", "OG0000783", "OG0000964", "OG0001962",
+photo.genes <- c("OG0000295", "OG0000378", "OG0000783", "OG0000964", "OG0001962",
                "OG0002384", "OG0003519", "OG0003992", "OG0004041", "OG0004061",
                "OG0004294", "OG0004978", "OG0005385", "OG0005556", "OG0006771",
                "OG0007574", "OG0007822", "OG0008057", "OG0010248", "OG0012065",
                "OG0012541", "OG0000516", "OG0011137", "OG0001049", "OG0005515")
 
 # Select genes from mappings[["classes"]]
-selected_features <- mappings[["classes"]][mappings[["classes"]]$Feature %in% phr.genes,]
+selected_features <- mappings[["classes"]][mappings[["classes"]]$Feature %in% photo.genes,]
 mappings_selected_features <- mappings
 mappings_selected_features$classes <- selected_features
 
 
 
 # Build net_edges for the list using the net_edges function
-net_edges_pk_phr <- net_edges(mappings_selected_features, 
+net_edges_pk_photo <- net_edges(mappings_selected_features, 
                                      "C3", "PK",
                                      add_disp_type = TRUE,
                                      disp_type = displacements)
-head(net_edges_pk_phr, 10)
+head(net_edges_pk_photo, 10)
 
 plot_displacements(mappings = mappings_selected_features,
-                links = net_edges_pk_phr,
+                links = net_edges_pk_photo,
                 reference_species = "C3",
                 layout="grid", 
                 node_order = NULL,
                 color_edges = "disp_type"
-                                )
+                )
 ```
 
 With this analysis, you can explore the displacement patterns for this specific group of genes associated with "photorespiration." This can provide valuable insights into how these genes have evolved and their relationships between the reference species (C3) and the test species (PK).
