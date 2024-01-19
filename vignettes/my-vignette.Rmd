@@ -152,7 +152,9 @@ figure <- ggplot(mappings[["neurons_sizes"]], aes(x = Neuron, y = size, fill = s
 figure
 ```
 
-## Step 4 - Characterizing displacement types
+## Step 4 - Detect and count displacements
+
+### 4.1 - Characterizing displacement types
 
 To uncover hidden evolutionary patterns, the package identifies movements, or displacements, of features among neurons within the Self-Organizing Map (SOM). When a feature from a test species is mapped to the same neuron as in the reference species, it is considered evolutionary preserved. If it is mapped to a different neuron, it is considered displaced. These feature movements can also be categorized into various types, such as early, delayed, flip, and more.
 
@@ -168,7 +170,7 @@ displacements
 
 The displacements object will provide information about the detected displacement types. If you need to further characterize a displacement based on additional criteria, you can manually edit the displacements dataframe as needed. This step allows for a more detailed exploration of displacement patterns in your data.
 
-## 5 - Creating a Network Dataframe to Count and Visualize Displacements
+### 4.2 - Creating a Network Dataframe to Count and Visualize Displacements
 
 To gain insights into the nature of evolutionary displacements, we employ the net_edges() function to generate a displacement graph. This function constructs a dataframe that counts the number of displacements between neurons and species pairs
 
@@ -182,9 +184,9 @@ head(net_edges_C3toPK, 10)
 
 The net_edges_C3toPK dataframe provides valuable information about the number and types of displacements between neurons and species. You can use this data to create visualizations and gain insights into the evolutionary changes and relationships between the reference species (C3) and the test species (PK)
 
-## 6 - Plot the displacements
+## Step 5 - Plot the displacements
 
-### 6.1 General displacements
+### 5.1 General displacements
 
 You can use the plot_displacements() function to observe the extent of feature displacements between species. With this visualization, you can gain insights into the extent and quality of feature displacements between species.
 
@@ -201,7 +203,7 @@ figure
                  
 ```
 
-### 6.2 Displacements of a specific group of features
+### 5.2 Displacements of a specific group of features
 
 You can also select a subset of features and visualize their displacements. For instance, based on the work of Prochetto et al., 2023, we have compiled a list of 25 genes related to the "photorespiration" process. This allows us to investigate whether there's a distinct pattern of displacement for this particular group of genes.
 
