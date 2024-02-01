@@ -232,13 +232,69 @@ head(net_edges_pk_photo, 10)
 plot_displacements(mappings = mappings_selected_features,
                 links = net_edges_pk_photo,
                 reference_species = "C3",
-                layout="grid", 
-                node_order = NULL,
-                color_edges = "disp_type"
+                layout="circle", 
+                node_order = c(1,4,5,2,6,3),
+                color_edges = "disp_type",
+                color_scale=c("#ef466e","#1189b1ff","#ffd166ff", "#a1a5afff", "black")
                 )
 ```
 
 With this analysis, you can explore the displacement patterns for this specific group of genes associated with "photorespiration." This can provide valuable insights into how these genes have evolved and their relationships between the reference species (C3) and the test species (PK).
+
+### 5.3 Photosynthesis as a Case Study
+
+  In previous steps we integrated transcriptomic data with anatomical information from four leaf segments representing different developmental stages. After scaling the data, an optimal map size of 2x3 was determined for our dataset comprising 9757 biological variables. The resulting map consisted of 6 neurons, each exhibiting distinct expression patterns. Following this, we constructed a reference SOM utilizing data from the C3 species, and subsequently, we mapped the data from PK and C4 onto this reference SOM for further analysis.
+  Our analysis centered on inner bundle sheath (IBS) cell size, a crucial phenotypic trait in C4 anatomy. Our results show that the  phenotypc trait IBS cell area is preserved between C3 and PK species (In both species was mapped to neuron 1) but it is displaced to neuron 6 in C4 species. We can acces to this information looking for the "classes" dataframe inside "mappings" object created in step 3.1.
+  
+
+```{r}
+head(mappings[["classes"]], 10)
+
+```
+
+Now we can select all biological variables mapped to neuron 1 in both C3 and PK
+```{r}
+#
+selected_variables <- mappings[["classes"]][mappings$classes$C3 %in% 1 & mappings$classes$PK %in% 1 ,]
+
+head(selected_variables) # 404 biological variables
+```
+
+We also can plot these displacement regarding from C3 and PK to C4
+```{r,fig.align = 'center', fig.width=8, fig.height=5, fig.retina= 3}
+# Select genes from mappings[["classes"]]
+mappings_selected_variables <- mappings
+mappings_selected_variables$classes <- selected_variables
+
+# Build net_edges for the list using the net_edges function
+net_edges_selected_variables <- net_edges(mappings_selected_variables, 
+                                     "C3", "C4",
+                                     add_disp_type = TRUE,
+                                     disp_type = displacements)
+
+head(net_edges_selected_variables, 10)
+
+plot_displacements(mappings = mappings_selected_variables,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
+                 links =  net_edges_selected_variables, #the arrows in the graph
+                 reference_species = "C3", #used for determine the size of the neurons
+                 layout="circle",  #from igraph: circle, linear, grid, etc.
+                 node_order=c(1,4,5,2,6,3),  #use a specific order for visualization purposes
+                 color_edges = "disp_type",  #Color the arrows by...
+                 color_scale=c("#ef466e","#1189b1ff","#ffd166ff", "#a1a5afff", "black"))
+```
+
+Select biological variables displaced together with IBS Cell size:
+```{r}
+head(selected_variables)  #IBS cell size is mapped to Neuron 6 in C4.
+
+ibs_displaced_bv <- selected_features[selected_features$C4 %in% 6,1]
+ibs_displaced_bv
+
+```
+
+Among the displaced genes were two known components of suberin biosynthesis, a characteristic polymer in C4 bundle sheath cell walls. Additionally, our analysis identified two displaced transcription factors, suggesting potential regulatory mechanisms underlying the observed phenotypic shift.
+We can also use this list of biological variables to perform some kind of enrichment analysis, depending on the annotation information available. For example a GO enrichment analysis showed that this group of genes is significantly enriched in suberin biosynthetic process, pyruvate transport and cell wall modification, among others (Prochetto et al., 2024).
+
 
 ## Citation
 
