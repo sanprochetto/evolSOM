@@ -39,7 +39,7 @@ In recent years, we have witnessed a surge in technological advancements in the 
 # Installation
 
 ```{r setup, warning=FALSE}
-#devtools::install_github("sanprochetto/evolSOM")
+devtools::install_github("sanprochetto/evolSOM")
 library(evolSOM)
 library(ggplot2)
 ```
@@ -216,7 +216,7 @@ photo.genes <- c("OG0000295", "OG0000378", "OG0000783", "OG0000964", "OG0001962"
                "OG0012541", "OG0000516", "OG0011137", "OG0001049", "OG0005515")
 
 # Select genes from mappings[["classes"]]
-selected_variables <- mappings[["classes"]][mappings[["classes"]]$Feature %in% photo.genes,]
+selected_variables <- mappings[["classes"]][mappings[["classes"]]$bio_var %in% photo.genes,]
 mappings_selected_variables <- mappings
 mappings_selected_variables$classes <- selected_variables
 
