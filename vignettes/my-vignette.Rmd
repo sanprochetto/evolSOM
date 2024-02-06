@@ -22,13 +22,13 @@ knitr::opts_chunk$set(
 
 # About
 
-In recent years, we have witnessed a surge in technological advancements in the field of life sciences. Researchers now have access to extensive biobanks and can collect vast amounts of multimodal data, including data from omics studies across multiple organisms, which is crucial for understanding evolution. As technical developments continue to progress, the demand for information systems capable of managing heterogeneous data is on the rise. One of the key challenges of this new era is the development of robust tools capable of integrating diverse data types to uncover hidden patterns and relationships among heterogeneous sources. We here introduce evolSOM, a novel tool based on unsupervised machine learning that facilitates the discovery of variations between multimodal data and offers an intuitive way to visualize hidden patterns within complex data matrices. Specifically, evolSOM clusters genes and/or phenotypic traits based on their expression patterns and maps these features across different species to assess their conservation throughout evolution. This vignette provides a detailed overview of the most essential functions within the evolSOM package and outlines the overall process for analyzing feature displacement. Feature displacement is a crucial aspect, as it allows us to uncover intrinsic evolutionary processes and changes. The general steps for using evolSOM are as follows:
+In recent years, we have witnessed a surge in technological advancements in the field of life sciences. Researchers now have access to extensive biobanks and can collect vast amounts of multimodal data, including data from omics studies across multiple organisms, which is crucial for understanding evolution. As technical developments continue to progress, the demand for information systems capable of managing heterogeneous data is on the rise. One of the key challenges of this new era is the development of robust tools capable of integrating diverse data types to uncover hidden patterns and relationships among heterogeneous sources. We here introduce evolSOM, a novel tool based on unsupervised machine learning that facilitates the discovery of variations between multimodal data and offers an intuitive way to visualize hidden patterns within complex data matrices. Specifically, evolSOM clusters genes and/or phenotypic traits based on their expression patterns and maps these biological variables across different species to assess their conservation throughout evolution. This vignette provides a detailed overview of the most essential functions within the evolSOM package and outlines the overall process for analyzing the displacement of biological variables. The displacement of biological variables is a crucial aspect, as it allows us to uncover intrinsic evolutionary processes and changes. The general steps for using evolSOM are as follows:
 
 1.  Import data and perform scaling.
 
 2.  Construct a reference SOM (Self-Organizing Map).
 
-3.  Map features within the reference SOM.
+3.  Map biological variables within the reference SOM.
 
 4.  Characterize displacement types.
 
@@ -52,7 +52,7 @@ In this example, we will demonstrate how to use evolSOM to identify potential ge
 
 ### 1.1 Data Import
 
-First, we need to import our dataset. The dataset consists of a dataframe containing a list of genes and phenotypic traits. These genes and traits have been measured in leaf segments at four different developmental stages and across three closely related species. Additionally, we require an extra dataframe providing useful information about each feature. This information might include details such as the feature type (gene or phenotypic trait), the biological processes in which the feature is involved, the gene family to which the feature belongs, and more.
+First, we need to import our dataset. The dataset consists of a dataframe containing a list of genes and phenotypic traits. These genes and traits have been measured in leaf segments at four different developmental stages and across three closely related species. Additionally, we require an extra dataframe providing useful information about each biological variable. This information might include details such as the variable type (gene or phenotypic trait), the biological processes in which the variable is involved, the gene family to which the variable belongs, and more.
 
 ```{r}
 #Traits expression data (genes + phenotype)
@@ -60,14 +60,14 @@ datSOM <- datSOM
 head(datSOM)
 
 #Traits names and information (tags) 
-classSOM <- classSOM #First column must be name of feature/gen
+classSOM <- classSOM #First column must be name of biological variable/gen
 ```
 
-### 1.2 Feature Scaling
+### 1.2 Scaling
 
-After importing the data, the next crucial step is to scale each feature to unit variance. This ensures that all features have the same level of influence during the analysis, preventing any feature from dominating the results due to differences in scale. Feature scaling is essential for accurate and meaningful insights from evolSOM.
+After importing the data, the next crucial step is to scale each biological variable to unit variance. This ensures that all variables have the same level of influence during the analysis, preventing any variable from dominating the results due to differences in scale. Scaling is essential for accurate and meaningful insights from evolSOM.
 
-We can achieve feature scaling using the scale_species() function, which scales the data from each species individually. The output is a list containing one dataframe for each species. The reference species should be the first element in the list:
+We can achieve scaling using the scale_species() function, which scales the data from each species individually. The output is a list containing one dataframe for each species. The reference species should be the first element in the list:
 
 ```{r}
 datSOM.scaled <- scale_species(datSOM[,9:12], datSOM[,5:8], datSOM[,1:4], 
@@ -119,11 +119,11 @@ set.seed(100) # Set the random number generator seed for reproducibility
            values = "prototypes", size= 400)
 ```
 
-## Step 3 - Map features within the reference SOM.
+## Step 3 - Map biological variables within the reference SOM.
 
 ### 3.1 Create mappings
 
-Let's briefly explain how to map features within the reference SOM. In this step, we utilize the create_mappings() function to create mappings and class assignments based on a trained model and input data. The mappings object stores valuable information about the mappings, such as class assignments and number of features allocated to each neuron.
+Let's briefly explain how to map biological variables within the reference SOM. In this step, we utilize the create_mappings() function to create mappings and class assignments based on a trained model and input data. The mappings object stores valuable information about the mappings, such as class assignments and number of biological variables allocated to each neuron.
 
 ```{r}
 mappings <- create_mappings(model = model.som,
@@ -139,7 +139,7 @@ head(mappings[["neurons_sizes"]],15)
 
 ### 3.2 Neurons sizes graph
 
-Now, let's take a look at the neuron sizes graph to gain insights into the number of features residing within each neuron:
+Now, let's take a look at the neuron sizes graph to gain insights into the number of biological variables residing within each neuron:
 
 ```{r,fig.align = 'center', fig.width=5, fig.height=5, fig.retina= 3}
 
@@ -156,7 +156,7 @@ figure
 
 ### 4.1 - Characterizing displacement types
 
-To uncover hidden evolutionary patterns, the package identifies movements, or displacements, of features among neurons within the Self-Organizing Map (SOM). When a feature from a test species is mapped to the same neuron as in the reference species, it is considered evolutionary preserved. If it is mapped to a different neuron, it is considered displaced. These feature movements can also be categorized into various types, such as early, delayed, flip, and more.
+To uncover hidden evolutionary patterns, the package identifies movements, or displacements, of biological variables among neurons within the Self-Organizing Map (SOM). When a biological variable from a test species is mapped to the same neuron as in the reference species, it is considered evolutionary preserved. If it is mapped to a different neuron, it is considered displaced. These biological variable movements can also be categorized into various types, such as early, delayed, flip, and more.
 
 You can automatically detect displacement types using the create_displacements() function:
 
@@ -188,7 +188,7 @@ The net_edges_C3toPK dataframe provides valuable information about the number an
 
 ### 5.1 General displacements
 
-You can use the plot_displacements() function to observe the extent of feature displacements between species. With this visualization, you can gain insights into the extent and quality of feature displacements between species.
+You can use the plot_displacements() function to observe the extent of displacements of biological variables between species. With this visualization, you can gain insights into the extent and quality of displacements between species.
 
 ```{r,fig.align = 'center', fig.width=8, fig.height=5, fig.retina= 3}
  figure <- plot_displacements(mappings = mappings,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
@@ -203,9 +203,9 @@ figure
                  
 ```
 
-### 5.2 Displacements of a specific group of features
+### 5.2 Displacements of a specific group of biological variables
 
-You can also select a subset of features and visualize their displacements. For instance, based on the work of Prochetto et al., 2023, we have compiled a list of 25 genes related to the "photorespiration" process. This allows us to investigate whether there's a distinct pattern of displacement for this particular group of genes.
+You can also select a subset of biological variables and visualize their displacements. For instance, based on the work of Prochetto et al., 2023, we have compiled a list of 25 genes related to the "photorespiration" process. This allows us to investigate whether there's a distinct pattern of displacement for this particular group of genes.
 
 ```{r, fig.align = 'center',  fig.width=8, fig.height=5, fig.retina= 3}
 # Photorespiration (25) gene list
@@ -216,20 +216,20 @@ photo.genes <- c("OG0000295", "OG0000378", "OG0000783", "OG0000964", "OG0001962"
                "OG0012541", "OG0000516", "OG0011137", "OG0001049", "OG0005515")
 
 # Select genes from mappings[["classes"]]
-selected_features <- mappings[["classes"]][mappings[["classes"]]$Feature %in% photo.genes,]
-mappings_selected_features <- mappings
-mappings_selected_features$classes <- selected_features
+selected_variables <- mappings[["classes"]][mappings[["classes"]]$Feature %in% photo.genes,]
+mappings_selected_variables <- mappings
+mappings_selected_variables$classes <- selected_variables
 
 
 
 # Build net_edges for the list using the net_edges function
-net_edges_pk_photo <- net_edges(mappings_selected_features, 
+net_edges_pk_photo <- net_edges(mappings_selected_variables, 
                                      "C3", "PK",
                                      add_disp_type = TRUE,
                                      disp_type = displacements)
 head(net_edges_pk_photo, 10)
 
-plot_displacements(mappings = mappings_selected_features,
+plot_displacements(mappings = mappings_selected_variables,
                 links = net_edges_pk_photo,
                 reference_species = "C3",
                 layout="circle", 
@@ -287,7 +287,7 @@ Select biological variables displaced together with IBS Cell size:
 ```{r}
 head(selected_variables)  #IBS cell size is mapped to Neuron 6 in C4.
 
-ibs_displaced_bv <- selected_features[selected_features$C4 %in% 6,1]
+ibs_displaced_bv <- selected_variables[selected_variables$C4 %in% 6,1]
 ibs_displaced_bv
 
 ```
