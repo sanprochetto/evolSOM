@@ -1,14 +1,14 @@
 #' Create mappings and class assignments
 #'
 #' This function creates mappings and class assignments based on a trained
-#' model and input data. The return includes the number of features mapped to
+#' model and input data. The return includes the number of biological variables mapped to
 #'  each neuron.
 #'
 #' @param model A trained SOM model.
 #' @param train_data Dataframe used for build "model"
 #' @param data_list A list of matrices or data frames with scale expression data.
 #' @param species_names Character vector of species names corresponding to the data.
-#' @param classes A data frame with features class tags.
+#' @param classes A data frame with biological variables class tags.
 #' @return A named list containing the mappings, classes, and neuron sizes.
 #' @export
 create_mappings <- function(model, train_data, data_list, species_names, classes) {

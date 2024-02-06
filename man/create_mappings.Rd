@@ -15,13 +15,13 @@ create_mappings(model, train_data, data_list, species_names, classes)
 
 \item{species_names}{Character vector of species names corresponding to the data.}
 
-\item{classes}{A data frame with features class tags.}
+\item{classes}{A data frame with biological variables class tags.}
 }
 \value{
 A named list containing the mappings, classes, and neuron sizes.
 }
 \description{
 This function creates mappings and class assignments based on a trained
-model and input data. The return includes the number of features mapped to
+model and input data. The return includes the number of biological variables mapped to
  each neuron.
 }
