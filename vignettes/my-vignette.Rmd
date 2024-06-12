@@ -70,9 +70,9 @@ After importing the data, the next crucial step is to scale each biological vari
 We can achieve scaling using the scale_species() function, which scales the data from each species individually. The output is a list containing one dataframe for each species. The reference species should be the first element in the list:
 
 ```{r}
-datSOM.scaled <- scale_species(datSOM[,9:12], datSOM[,5:8], datSOM[,1:4], 
+datSOM.scaled <- scale_condition(datSOM[,9:12], datSOM[,5:8], datSOM[,1:4], 
                                rnames= row.names(datSOM),
-                               species_names = c("C3", "PK", "C4"))
+                               condition_names = c("C3", "PK", "C4"))
 head(datSOM.scaled[[1]])
 
 head(datSOM.scaled[[2]])
