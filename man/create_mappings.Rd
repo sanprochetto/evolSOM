@@ -4,7 +4,7 @@
 \alias{create_mappings}
 \title{Create mappings and class assignments}
 \usage{
-create_mappings(model, train_data, data_list, species_names, classes)
+create_mappings(model, train_data, data_list, condition_names, classes)
 }
 \arguments{
 \item{model}{A trained SOM model.}
@@ -13,7 +13,7 @@ create_mappings(model, train_data, data_list, species_names, classes)
 
 \item{data_list}{A list of matrices or data frames with scale expression data.}
 
-\item{species_names}{Character vector of species names corresponding to the data.}
+\item{condition_names}{Character vector of condition names corresponding to the data.}
 
 \item{classes}{A data frame with biological variables class tags.}
 }

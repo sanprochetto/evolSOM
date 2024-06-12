@@ -7,7 +7,7 @@
 opt_map_size(data, threshold = 0.8, init_dim = 5, max_iterations = 1000)
 }
 \arguments{
-\item{data}{species data for build reference SOM. A data matrix or data frame without NAs.}
+\item{data}{control condition data for build reference SOM. A data matrix or data frame without NAs.}
 
 \item{threshold}{The neuron correlation threshold for reducing the SOM grid size.}
 

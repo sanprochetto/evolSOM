@@ -101,7 +101,7 @@ map_size
 To build the reference SOM, we use functions from the kohonen and aweSOM packages:
 
 ```{r}
-train.data <- as.matrix(na.omit(datSOM.scaled[[1]])) # Select variables for the reference species
+train.data <- as.matrix(na.omit(datSOM.scaled[[1]])) # Select variables for the reference condition
 dim1<- map_size[["grid_dim1"]]
 dim2<- map_size[["grid_dim2"]]
 set.seed(100) # Set the random number generator seed for reproducibility
@@ -129,7 +129,7 @@ Let's briefly explain how to map biological variables within the reference SOM. 
 mappings <- create_mappings(model = model.som,
                             train_data = train.data,
                             data_list = datSOM.scaled, 
-                            species_names = names(datSOM.scaled), 
+                            condition_names = names(datSOM.scaled), 
                             classes = classSOM)
 
 #Explore info inside mappings:
@@ -143,7 +143,7 @@ Now, let's take a look at the neuron sizes graph to gain insights into the numbe
 
 ```{r,fig.align = 'center', fig.width=5, fig.height=5, fig.retina= 3}
 
-figure <- ggplot(mappings[["neurons_sizes"]], aes(x = Neuron, y = size, fill = species)) +
+figure <- ggplot(mappings[["neurons_sizes"]], aes(x = Neuron, y = size, fill = condition)) +
    geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
     scale_x_continuous(breaks = seq(1, 6, 1)) +
   scale_fill_manual(values = c("#7ed977", "#008f77", "#009ca6" ))+

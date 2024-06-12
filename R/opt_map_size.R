@@ -2,7 +2,7 @@
 #'
 #' This function determines the optimal self-organizing map (SOM) grid size for a given dataset based on neuron correlations.
 #'
-#' @param data species data for build reference SOM. A data matrix or data frame without NAs.
+#' @param data control condition data for build reference SOM. A data matrix or data frame without NAs.
 #' @param threshold The neuron correlation threshold for reducing the SOM grid size.
 #' @param init_dim The initial SOM grid dimensions.
 #' @param max_iterations The maximum number of iterations for SOM training.
