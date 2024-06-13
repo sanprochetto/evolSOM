@@ -39,7 +39,7 @@ In recent years, we have witnessed a surge in technological advancements in the 
 # Installation
 
 ```{r setup, warning=FALSE}
-devtools::install_github("sanprochetto/evolSOM")
+#devtools::install_github("sanprochetto/evolSOM")
 library(evolSOM)
 library(ggplot2)
 ```
