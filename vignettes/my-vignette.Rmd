@@ -231,7 +231,7 @@ head(net_edges_pk_photo, 10)
 
 plot_displacements(mappings = mappings_selected_variables,
                 links = net_edges_pk_photo,
-                reference_species = "C3",
+                reference_condition = "C3",
                 layout="circle", 
                 node_order = c(1,4,5,2,6,3),
                 color_edges = "disp_type",
@@ -239,7 +239,7 @@ plot_displacements(mappings = mappings_selected_variables,
                 )
 ```
 
-With this analysis, you can explore the displacement patterns for this specific group of genes associated with "photorespiration." This can provide valuable insights into how these genes have evolved and their relationships between the reference species (C3) and the test species (PK).
+With this analysis, you can explore the displacement patterns for this specific group of genes associated with "photorespiration." This can provide valuable insights into how these genes expression pattern have changed and their relationships between the reference species (C3) and the test species (PK).
 
 ### 5.3 Photosynthesis as a Case Study
 
@@ -276,7 +276,7 @@ head(net_edges_selected_variables, 10)
 
 plot_displacements(mappings = mappings_selected_variables,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
                  links =  net_edges_selected_variables, #the arrows in the graph
-                 reference_species = "C3", #used for determine the size of the neurons
+                 reference_condition = "C3", #used for determine the size of the neurons
                  layout="circle",  #from igraph: circle, linear, grid, etc.
                  node_order=c(1,4,5,2,6,3),  #use a specific order for visualization purposes
                  color_edges = "disp_type",  #Color the arrows by...
