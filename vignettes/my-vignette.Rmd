@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 # About
 
-In recent years, we have witnessed a surge in technological advancements in the field of life sciences. Researchers now have access to extensive biobanks and can collect vast amounts of multimodal data, including data from omics studies across multiple organisms, which is crucial for understanding evolution. As technical developments continue to progress, the demand for information systems capable of managing heterogeneous data is on the rise. One of the key challenges of this new era is the development of robust tools capable of integrating diverse data types to uncover hidden patterns and relationships among heterogeneous sources. We here introduce evolSOM, a novel tool based on unsupervised machine learning that facilitates the discovery of variations between multimodal data and offers an intuitive way to visualize hidden patterns within complex data matrices. Specifically, evolSOM clusters genes and/or phenotypic traits based on their expression patterns and maps these biological variables across different species to assess their conservation throughout evolution. This vignette provides a detailed overview of the most essential functions within the evolSOM package and outlines the overall process for analyzing the displacement of biological variables. The displacement of biological variables is a crucial aspect, as it allows us to uncover intrinsic evolutionary processes and changes. The general steps for using evolSOM are as follows:
+In recent years, we have witnessed a surge in technological advancements in the field of life sciences. Researchers now have access to extensive biobanks and can collect vast amounts of multimodal data, including data from omics studies across multiple organisms, which is crucial for understanding evolution. As technical developments continue to progress, the demand for information systems capable of managing heterogeneous data is on the rise. One of the key challenges of this new era is the development of robust tools capable of integrating diverse data types to uncover hidden patterns and relationships among heterogeneous sources. We here introduce evolSOM, a novel tool based on unsupervised machine learning that facilitates the discovery of variations between multimodal data and offers an intuitive way to visualize hidden patterns within complex data matrices. Specifically, evolSOM clusters genes and/or phenotypic traits based on their expression patterns and maps these biological variables across different species to assess their conservation. This vignette provides a detailed overview of the most essential functions within the evolSOM package and outlines the overall process for analyzing the displacement of biological variables. The displacement of biological variables is a crucial aspect, as it allows us to uncover intrinsic evolutionary processes and changes. The general steps for using evolSOM are as follows:
 
 1.  Import data and perform scaling.
 
@@ -52,27 +52,36 @@ In this example, we will demonstrate how to use evolSOM to identify potential ge
 
 ### 1.1 Data Import
 
-First, we need to import our dataset. The dataset consists of a dataframe containing a list of genes and phenotypic traits. These genes and traits have been measured in leaf segments at four different developmental stages and across three closely related species. Additionally, we require an extra dataframe providing useful information about each biological variable. This information might include details such as the variable type (gene or phenotypic trait), the biological processes in which the variable is involved, the gene family to which the variable belongs, and more.
+First, we need to import our dataset. The dataset consists of a dataframe containing a list of genes and phenotypic traits. These genes and traits have been measured in leaf segments at four different developmental stages and across three closely related species. Additionally, we require an extra dataframe providing useful information about each biological variable, which will be used in Step 3.1. This information might include details such as the variable type (gene or phenotypic trait), the biological processes in which the variable is involved, the gene family to which the variable belongs, and more.
 
 ```{r}
 #Traits expression data (genes + phenotype)
-datSOM <- datSOM
-head(datSOM)
+datSOM_control <- read.csv("../inst/extdata/dataC3.csv", row.names = 1) #Load data from control condition.
+head(datSOM_control)
+
+datSOM_test1 <- read.csv("../inst/extdata/dataPK.csv", row.names = 1) #Load data from first test/treatment condition.
+head(datSOM_test1)
+
+datSOM_test2 <- read.csv("../inst/extdata/dataC4.csv", row.names = 1) #Load data from second test/treatment condition.
+head(datSOM_test2)
+
 
 #Traits names and information (tags) 
-classSOM <- classSOM #First column must be name of biological variable/gen
+classSOM <-  read.csv("../inst/extdata/class_SOM.csv", row.names = 1) #First column must be the name of biological variable/gen
+head(classSOM)
 ```
 
 ### 1.2 Scaling
 
 After importing the data, the next crucial step is to scale each biological variable to unit variance. This ensures that all variables have the same level of influence during the analysis, preventing any variable from dominating the results due to differences in scale. Scaling is essential for accurate and meaningful insights from evolSOM.
 
-We can achieve scaling using the scale_species() function, which scales the data from each species individually. The output is a list containing one dataframe for each species. The reference species should be the first element in the list:
+We can achieve scaling using the ***scale_condition()*** function, which scales the data from each condition individually. In this case, each condition represents the biological variables measured in the three species. The output is a list containing one dataframe for each condition/species. The control condition should be the first element in the list:
 
 ```{r}
-datSOM.scaled <- scale_condition(datSOM[,9:12], datSOM[,5:8], datSOM[,1:4], 
-                               rnames= row.names(datSOM),
-                               condition_names = c("C3", "PK", "C4"))
+datSOM.scaled <- scale_condition(datSOM_control, datSOM_test1, datSOM_test2, 
+                               rnames= row.names(datSOM_control),
+                               condition_names = c("C3", "PK", "C4")) #Names of the species
+
 head(datSOM.scaled[[1]])
 
 head(datSOM.scaled[[2]])
@@ -85,7 +94,7 @@ head(datSOM.scaled[[3]])
 
 ### 2.1 Optimal size of the grid
 
-Before constructing the reference SOM, it's essential to estimate the optimal size of the grid. The optimal size is where all expression patterns in your data are accurately represented by neurons, ensuring that each pattern is unique. The grid size depends on the number of conditions under which the data was measured. Estimating the grid size manually can be challenging, time-consuming, and may require several iterations, especially for those who are not familiar with Self-Organizing Maps (SOM). To streamline this process, we provide a script that automates the search for the optimum grid size using the opt_map_size() function. The result, map_size, will provide you with the optimal grid dimensions.
+Before constructing the reference SOM, it's essential to estimate the optimal size of the grid. The optimal size is where all expression patterns in your data are accurately represented by neurons, ensuring that each pattern is unique. The grid size depends on the number of conditions under which the data was measured. Estimating the grid size manually can be challenging, time-consuming, and may require several iterations, especially for those who are not familiar with Self-Organizing Maps (SOM). To streamline this process, we provide a script that automates the search for the optimum grid size using the ***opt_map_size()*** function. The result, map_size, will provide you with the optimal grid dimensions.
 
 ```{r}
 map_size <- opt_map_size(data = na.omit(datSOM.scaled[[1]]), # Reference species data (without NA)
@@ -101,7 +110,7 @@ map_size
 To build the reference SOM, we use functions from the kohonen and aweSOM packages:
 
 ```{r}
-train.data <- as.matrix(na.omit(datSOM.scaled[[1]])) # Select variables for the reference condition
+train.data <- as.matrix(na.omit(datSOM.scaled[[1]])) # Select variables for the reference/control condition
 dim1<- map_size[["grid_dim1"]]
 dim2<- map_size[["grid_dim2"]]
 set.seed(100) # Set the random number generator seed for reproducibility
@@ -123,7 +132,7 @@ set.seed(100) # Set the random number generator seed for reproducibility
 
 ### 3.1 Create mappings
 
-Let's briefly explain how to map biological variables within the reference SOM. In this step, we utilize the create_mappings() function to create mappings and class assignments based on a trained model and input data. The mappings object stores valuable information about the mappings, such as class assignments and number of biological variables allocated to each neuron.
+Let's briefly explain how to map biological variables within the reference SOM. In this step, we utilize the ***create_mappings()*** function to create mappings and class assignments based on a trained model and input data. The mappings object stores valuable information about the mappings, such as class assignments and number of biological variables allocated to each neuron.
 
 ```{r}
 mappings <- create_mappings(model = model.som,
@@ -156,9 +165,9 @@ figure
 
 ### 4.1 - Characterizing displacement types
 
-To uncover hidden evolutionary patterns, the package identifies movements, or displacements, of biological variables among neurons within the Self-Organizing Map (SOM). When a biological variable from a test species is mapped to the same neuron as in the control condition, it is considered preserved. If it is mapped to a different neuron, it is considered displaced. These biological variable movements can also be categorized into various types, such as early, delayed, flip, and more.
+To uncover hidden patterns, the package identifies movements, or displacements, of biological variables among neurons within the Self-Organizing Map (SOM). The data series can be temporal (i.e., different times of an experiment, or tissues with a differential degree of development) or not temporal (i.e., different tissues or organs). If the cross-correlation is maximum at the middle point of the data series, that is the two series are identical, conservation is observed. When the correlation is maximum at the right part of the middle point of the series and surpasses the *delay_threshold*, it indicates a delay displacement, this means a delay in the expression of the biological variable under analysis in the test condition with respect to the control condition. Similarly, if the correlation is maximum at the left part of the middle point of the series, it indicates an early displacement (early expression in test with respect to control condition). Conversely, a negative cross-correlation lower than the *flip_threshold* indicates a flip, that is, a completely opposite behavior in the test condition with respect to the reference one. While the terms "early" and "delay" might sound as time-related, in non-temporal data they represent a shift in the sequence of activation of a biological variable compared to the reference condition and it will hardly depend on the particular order of the measurements in the data series chosen by the user. The measurements might not necessarily imply a time difference, but rather a difference in the underlying process governing the biological variables expression
 
-You can automatically detect displacement types using the create_displacements() function:
+You can automatically detect displacement types using the ***create_displacements()*** function:
 
 ```{r}
 displacements<-  detect_displacements(model.som,
@@ -172,23 +181,23 @@ The displacements object will provide information about the detected displacemen
 
 ### 4.2 - Creating a Network Dataframe to Count and Visualize Displacements
 
-To gain insights into the nature of the displacements, we employ the net_edges() function to generate a displacement graph. This function constructs a dataframe that counts the number of displacements between neurons and condition pairs
+To gain insights into the nature of the displacements, we employ the *net_edges()* function to generate a displacement graph. This function constructs a dataframe that counts the number of displacements between neurons and condition pairs
 
 ```{r}
 net_edges_C3toPK <- net_edges(mappings =  mappings, #object returned from mapping()
-                                     "Reference.sp", "PK",  #Condition names: "start", "end"
+                                     "control_condition", "PK",  #Condition names: "start", "end"
                                      add_disp_type = TRUE,  # choose to add displacement types
                                      disp_type = displacements) #where to find disp types info
 head(net_edges_C3toPK, 10)
 ```
 
-The net_edges_C3toPK dataframe provides valuable information about the number and types of displacements between neurons and conditions. You can use this data to create visualizations and gain insights into the changes and relationships between the reference species (C3) and the test species (PK)
+The *net_edges_C3toPK* dataframe provides valuable information about the number and types of displacements between neurons and conditions. You can use this data to create visualizations and gain insights into the changes and relationships between the reference species (C3) and the test species (PK)
 
 ## Step 5 - Plot the displacements
 
 ### 5.1 General displacements
 
-You can use the plot_displacements() function to observe the extent of displacements of biological variables between species. With this visualization, you can gain insights into the extent and quality of displacements between condition/species.
+You can use the ***plot_displacements()*** function to observe the extent of displacements of biological variables between species. With this visualization, you can gain insights into the extent and quality of displacements between condition/species.
 
 ```{r,fig.align = 'center', fig.width=8, fig.height=5, fig.retina= 3}
  figure <- plot_displacements(mappings = mappings,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]
@@ -205,7 +214,7 @@ figure
 
 ### 5.2 Displacements of a specific group of biological variables
 
-You can also select a subset of biological variables and visualize their displacements. For instance, based on the work of Prochetto et al., 2023, we have compiled a list of 25 genes related to the "photorespiration" process. This allows us to investigate whether there's a distinct pattern of displacement for this particular group of genes.
+You can also select a subset of biological variables and visualize their displacements. For instance, based on the work of *Prochetto et al., 2023*, we have compiled a list of 25 genes related to the "photorespiration" process. This allows us to investigate whether there's a distinct pattern of displacement for this particular group of genes.
 
 ```{r, fig.align = 'center',  fig.width=8, fig.height=5, fig.retina= 3}
 # Photorespiration (25) gene list
@@ -243,9 +252,7 @@ With this analysis, you can explore the displacement patterns for this specific 
 
 ### 5.3 Photosynthesis as a Case Study
 
-  In previous steps we integrated transcriptomic data with anatomical information from four leaf segments representing different developmental stages. After scaling the data, an optimal map size of 2x3 was determined for our dataset comprising 9757 biological variables. The resulting map consisted of 6 neurons, each exhibiting distinct expression patterns. Following this, we constructed a reference SOM utilizing data from the C3 species, and subsequently, we mapped the data from PK and C4 onto this reference SOM for further analysis.
-  Our analysis centered on inner bundle sheath (IBS) cell size, a crucial phenotypic trait in C4 anatomy. Our results show that the  phenotypc trait IBS cell area is preserved between C3 and PK species (In both species was mapped to neuron 1) but it is displaced to neuron 6 in C4 species. We can acces to this information looking for the "classes" dataframe inside "mappings" object created in step 3.1.
-  
+In previous steps we integrated transcriptomic data with anatomical information from four leaf segments representing different developmental stages. After scaling the data, an optimal map size of 2x3 was determined for our dataset comprising 9757 biological variables. The resulting map consisted of 6 neurons, each exhibiting distinct expression patterns. Following this, we constructed a reference SOM utilizing data from the C3 species, and subsequently, we mapped the data from PK and C4 onto this reference SOM for further analysis. Our analysis centered on inner bundle sheath (IBS) cell size, a crucial phenotypic trait in C4 anatomy. Our results show that the phenotypic trait IBS cell area is preserved between C3 and PK species (In both species was mapped to neuron 1) but it is displaced to neuron 6 in C4 species. We can access to this information looking for the *"classes"* dataframe inside *"mappings"* object created in step 3.1.
 
 ```{r}
 head(mappings[["classes"]], 10)
@@ -253,6 +260,7 @@ head(mappings[["classes"]], 10)
 ```
 
 Now we can select all biological variables mapped to neuron 1 in both C3 and PK
+
 ```{r}
 #
 selected_variables <- mappings[["classes"]][mappings$classes$C3 %in% 1 & mappings$classes$PK %in% 1 ,]
@@ -261,6 +269,7 @@ head(selected_variables) # 404 biological variables
 ```
 
 We also can plot these displacement regarding from C3 and PK to C4
+
 ```{r,fig.align = 'center', fig.width=8, fig.height=5, fig.retina= 3}
 # Select genes from mappings[["classes"]]
 mappings_selected_variables <- mappings
@@ -284,6 +293,7 @@ plot_displacements(mappings = mappings_selected_variables,  # Looks for nodes in
 ```
 
 Select biological variables displaced together with IBS Cell size:
+
 ```{r}
 head(selected_variables)  #IBS cell size is mapped to Neuron 6 in C4.
 
@@ -292,9 +302,7 @@ ibs_displaced_bv
 
 ```
 
-Among the displaced genes were two known components of suberin biosynthesis, a characteristic polymer in C4 bundle sheath cell walls. Additionally, our analysis identified two displaced transcription factors, suggesting potential regulatory mechanisms underlying the observed phenotypic shift.
-We can also use this list of biological variables to perform some kind of enrichment analysis, depending on the annotation information available. For example a GO enrichment analysis showed that this group of genes is significantly enriched in suberin biosynthetic process, pyruvate transport and cell wall modification, among others (Prochetto et al., 2024).
-
+Among the displaced genes were two known components of suberin biosynthesis, a characteristic polymer in C4 bundle sheath cell walls. Additionally, our analysis identified two displaced transcription factors, suggesting potential regulatory mechanisms underlying the observed phenotypic shift. We can also use this list of biological variables to perform some kind of enrichment analysis, depending on the annotation information available. For example a GO enrichment analysis showed that this group of genes is significantly enriched in suberin biosynthetic process, pyruvate transport and cell wall modification, among others (Prochetto et al., 2024).
 
 ## Citation
 
