@@ -3,8 +3,7 @@
 ## About 
 
 evolSOM can cluster genes and/or phenotypic traits according to expression patterns.
-Map genes and/or phenotypic traits in different species to evaluate conservation
-along evolution. 
+Map genes and/or phenotypic traits in different species to evaluate conservation. 
 The general steps for using evolSOM are as follows:
 
 1.  Import data and perform scaling.
