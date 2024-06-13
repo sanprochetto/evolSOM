@@ -23,11 +23,11 @@ create_mappings <- function(model, train_data, data_list, condition_names, class
   }
   # Populate class assignments data frame
   x <- cbind(rownames(train_data), model[["unit.classif"]])
-  classes$Reference.sp <- NA
+  classes$control_condition <- NA
   for (i in 1:nrow(classes)) {
     matching_rows <- which(x[, 1] == classes[i, 1])
     if (length(matching_rows) > 0) {
-      classes[i, "Reference.sp"] <- x[matching_rows, 2]
+      classes[i, "control_condition"] <- x[matching_rows, 2]
     }
   }
   #Create neuron size table
