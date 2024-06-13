@@ -3,8 +3,8 @@
 #' This function creates network edges based on mappings and class assignments.
 #'
 #' @param mappings A named list containing mappings, classes, and neuron sizes.Output from create_mappings
-#' @param reference_name The name of the species or samples to be used as reference.
-#' @param test_name The name of the species or samples to be used as test variable.
+#' @param reference_name The name of the species, condition or samples to be used as reference.
+#' @param test_name The name of the species, condition or samples to be used as test variable.
 #' @param add_disp_type Logical value indicating whether to add displacement types to the network edges.
 #' @param disp_type A data frame containing the displacement types. Valid if add_disp_type = TRUE
 #' @return A data frame containing the network links and edges. Object used for displacements visualization.

@@ -156,7 +156,7 @@ figure
 
 ### 4.1 - Characterizing displacement types
 
-To uncover hidden evolutionary patterns, the package identifies movements, or displacements, of biological variables among neurons within the Self-Organizing Map (SOM). When a biological variable from a test species is mapped to the same neuron as in the reference species, it is considered evolutionary preserved. If it is mapped to a different neuron, it is considered displaced. These biological variable movements can also be categorized into various types, such as early, delayed, flip, and more.
+To uncover hidden evolutionary patterns, the package identifies movements, or displacements, of biological variables among neurons within the Self-Organizing Map (SOM). When a biological variable from a test species is mapped to the same neuron as in the control condition, it is considered preserved. If it is mapped to a different neuron, it is considered displaced. These biological variable movements can also be categorized into various types, such as early, delayed, flip, and more.
 
 You can automatically detect displacement types using the create_displacements() function:
 
@@ -172,23 +172,23 @@ The displacements object will provide information about the detected displacemen
 
 ### 4.2 - Creating a Network Dataframe to Count and Visualize Displacements
 
-To gain insights into the nature of evolutionary displacements, we employ the net_edges() function to generate a displacement graph. This function constructs a dataframe that counts the number of displacements between neurons and species pairs
+To gain insights into the nature of the displacements, we employ the net_edges() function to generate a displacement graph. This function constructs a dataframe that counts the number of displacements between neurons and condition pairs
 
 ```{r}
 net_edges_C3toPK <- net_edges(mappings =  mappings, #object returned from mapping()
-                                     "Reference.sp", "PK",  #Species names: "start", "end"
+                                     "Reference.sp", "PK",  #Condition names: "start", "end"
                                      add_disp_type = TRUE,  # choose to add displacement types
                                      disp_type = displacements) #where to find disp types info
 head(net_edges_C3toPK, 10)
 ```
 
-The net_edges_C3toPK dataframe provides valuable information about the number and types of displacements between neurons and species. You can use this data to create visualizations and gain insights into the evolutionary changes and relationships between the reference species (C3) and the test species (PK)
+The net_edges_C3toPK dataframe provides valuable information about the number and types of displacements between neurons and conditions. You can use this data to create visualizations and gain insights into the changes and relationships between the reference species (C3) and the test species (PK)
 
 ## Step 5 - Plot the displacements
 
 ### 5.1 General displacements
 
-You can use the plot_displacements() function to observe the extent of displacements of biological variables between species. With this visualization, you can gain insights into the extent and quality of displacements between species.
+You can use the plot_displacements() function to observe the extent of displacements of biological variables between species. With this visualization, you can gain insights into the extent and quality of displacements between condition/species.
 
 ```{r,fig.align = 'center', fig.width=8, fig.height=5, fig.retina= 3}
  figure <- plot_displacements(mappings = mappings,  # Looks for nodes inside mapping mapping[["neurons_sizes"]]

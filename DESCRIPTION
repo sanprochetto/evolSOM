@@ -9,7 +9,7 @@ Authors@R: c(
   person("Renata", "Reinheimer", role = c("ctb")) )
 Maintainer: Prochetto, S. <sprochetto@gmail.com>
 URL: https://github.com/sanprochetto/evolSOM
-Description: Cluster genes and/or phenotypic traits according to expression patterns. Map genes and/or phenotypic traits in different species to evaluate conservation along evolution.
+Description: Cluster genes and/or phenotypic traits according to expression patterns. Map genes and/or phenotypic traits in different conditions to evaluate conservation.
 License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 LazyData: true

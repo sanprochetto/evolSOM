@@ -15,9 +15,9 @@ net_edges(
 \arguments{
 \item{mappings}{A named list containing mappings, classes, and neuron sizes.Output from create_mappings}
 
-\item{reference_name}{The name of the species or samples to be used as reference.}
+\item{reference_name}{The name of the species, condition or samples to be used as reference.}
 
-\item{test_name}{The name of the species or samples to be used as test variable.}
+\item{test_name}{The name of the species, condition or samples to be used as test variable.}
 
 \item{add_disp_type}{Logical value indicating whether to add displacement types to the network edges.}
 
