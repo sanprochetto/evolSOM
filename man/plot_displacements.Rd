@@ -7,7 +7,7 @@
 plot_displacements(
   mappings,
   links,
-  reference_species,
+  reference_condition,
   layout = "circle",
   node_order = NULL,
   color_edges,
@@ -19,7 +19,7 @@ plot_displacements(
 
 \item{links}{A data frame containing the network edges. From create_net_edges().}
 
-\item{reference_species}{A character vector specifying the reference species.}
+\item{reference_condition}{A character vector specifying the reference condition/species.}
 
 \item{layout}{The layout of the graph. From igraph parameter: "circle", "linear", "grid", etc. Default is "circle".}
 

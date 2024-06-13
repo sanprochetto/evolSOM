@@ -4,7 +4,7 @@
 #'
 #' @param mappings A list containing the mappings and neuron sizes. From create_mappings().
 #' @param links A data frame containing the network edges. From create_net_edges().
-#' @param reference_species A character vector specifying the reference species.
+#' @param reference_condition A character vector specifying the reference condition/species.
 #' @param layout The layout of the graph. From igraph parameter: "circle", "linear", "grid", etc. Default is "circle".
 #' @param node_order An optional vector specifying the order of nodes in the graph. Default is NULL.
 #' @param color_edges A character string specifying the column name for edge colors.
@@ -16,12 +16,12 @@
 
 plot_displacements <- function(mappings,
                                 links,
-                                reference_species,
+                                reference_condition,
                                 layout="circle",
                                 node_order=NULL,
                                 color_edges,
                                 color_scale=NULL) {
-  nodes <- mappings[["neurons_sizes"]][mappings[["neurons_sizes"]]$species %in% reference_species,1:2]
+  nodes <- mappings[["neurons_sizes"]][mappings[["neurons_sizes"]]$condition %in% reference_condition,1:2]
   # Set node order if specified
   if (!is.null(node_order)) {
     nodes$Neuron <- factor(nodes$Neuron, levels = node_order)
